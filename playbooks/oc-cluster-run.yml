@@ -12,15 +12,32 @@
       ansible.builtin.set_fact:
         pull_secret: "{{ lookup('env', 'CRC_PULL_SECRET') }}"
       when: pull_secret is undefined
+    - name: Look for pull_secret (splitted in small parts due to testing farm encryption)
+      ansible.builtin.set_fact:
+        pull_secret_part_1: "{{ lookup('env', 'CRC_PULL_SECRET_PART_1') }}"
+        pull_secret_part_2: "{{ lookup('env', 'CRC_PULL_SECRET_PART_2') }}"
+        pull_secret_part_3: "{{ lookup('env', 'CRC_PULL_SECRET_PART_3') }}"
+        pull_secret_part_4: "{{ lookup('env', 'CRC_PULL_SECRET_PART_4') }}"
+        pull_secret_part_5: "{{ lookup('env', 'CRC_PULL_SECRET_PART_5') }}"
+        pull_secret_part_6: "{{ lookup('env', 'CRC_PULL_SECRET_PART_6') }}"
+        pull_secret_part_7: "{{ lookup('env', 'CRC_PULL_SECRET_PART_7') }}"
+      when: pull_secret == ""
     - name: Show pull secret
       ansible.builtin.debug:
-        msg: "{{ pull_secret }}"
+        msg: "{{ pull_secret_part_1 }}{{ pull_secret_part_2 }}"
     - name: Create secret file from pull request var
       ansible.builtin.copy:
-        content: "{{ pull_secret }}"
+        content: "{{ pull_secret_part_1 }}{{ pull_secret_part_2 }}"
         dest: "{{ dest_pull_secret_file }}"
         mode: "0640"
         owner: "{{ user }}"
+
+    - name: Display pull secret file
+      command: cat "{{ dest_pull_secret_file }}"
+      register: command_output
+    - name: Print to console
+      debug:
+        msg: "{{ command_output.stdout }}"
 
     - name: Find user uid
       ansible.builtin.command: "id -u {{ user }}"
